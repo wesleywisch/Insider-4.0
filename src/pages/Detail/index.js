@@ -25,12 +25,15 @@ import Stars from 'react-native-stars';
 import { Genres } from '../../components/Genres';
 import { ModalLink } from "../../components/ModalLink";
 
+import { saveMovie, hasMovie, deleteMovie } from '../../utils/storage';
+
 export function Detail() {
   const navigation = useNavigation();
   const route = useRoute();
 
   const [movie, setMovie] = useState({});
   const [openModalLink, setOpenModalLink] = useState(false);
+  const [favoriteMovie, setFavoriteMovie] = useState(false);
 
   useEffect(() => {
     let isActive = true;
@@ -47,6 +50,9 @@ export function Detail() {
 
       if (isActive) {
         setMovie(response.data);
+
+        const isFavorite = await hasMovie(response.data);
+        setFavoriteMovie(isFavorite);
       }
     }
 
@@ -57,7 +63,19 @@ export function Detail() {
     return () => {
       isActive = false;
     }
-  }, [])
+  }, []);
+
+  async function handleFavoriteMovie(movie) {
+    if (favoriteMovie) {
+      await deleteMovie(movie.id);
+      setFavoriteMovie(false);
+      alert('Filme removido da lista');
+    } else {
+      await saveMovie('@primeReact', movie);
+      setFavoriteMovie(true);
+      alert('Filme salvo na lista');
+    }
+  }
 
   return (
     <DetailContainer>
@@ -70,9 +88,9 @@ export function Detail() {
           />
         </HeaderButton>
 
-        <HeaderButton onPress={() => setOpenModalLink(true)}>
+        <HeaderButton onPress={() => handleFavoriteMovie(movie)}>
           <Ionicons
-            name="bookmark"
+            name={favoriteMovie ? "bookmark" : "bookmark-outline"}
             size={28}
             color="#fff"
           />
@@ -84,7 +102,7 @@ export function Detail() {
         source={{ uri: `https://image.tmdb.org/t/p/original/${movie.poster_path}` }}
       />
 
-      <ButtonLink>
+      <ButtonLink onPress={() => setOpenModalLink(true)}>
         <Feather name="link" size={24} color="#fff" />
       </ButtonLink>
 
@@ -118,7 +136,7 @@ export function Detail() {
       </ScrollView>
 
       <Modal animationType="slide" transparent={true} visible={openModalLink}>
-        <ModalLink 
+        <ModalLink
           link={movie?.homepage}
           title={movie?.title}
           closeModal={() => setOpenModalLink(false)}

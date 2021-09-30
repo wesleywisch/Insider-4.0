@@ -29,6 +29,7 @@ export function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [topMovies, setTopMovies] = useState([]);
   const [bannerMovie, setBannerMovie] = useState({});
+  const [input, setInput] = useState('');
 
   const [loading, setLoading] = useState(true);
 
@@ -86,6 +87,13 @@ export function Home() {
     navigation.navigate('Detail', { id: item.id });
   }
 
+  function handleSearchMovie() {
+    if (input === '') return;
+
+    navigation.navigate('Search', { name: input });
+    setInput('');
+  }
+
   if (loading) {
     return (
       <Container>
@@ -102,9 +110,11 @@ export function Home() {
         <Input
           placeholder="Ex: Vingadores"
           placeholderTextColor="#ddd"
+          value={input}
+          onChangeText={t => setInput(t)}
         />
 
-        <SearchButton>
+        <SearchButton onPress={handleSearchMovie}>
           <Feather name="search" size={30} color="#fff" />
         </SearchButton>
       </SearchContainer>
@@ -123,7 +133,7 @@ export function Home() {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={nowMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item) } />}
+          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item)} />}
           keyExtractor={(item) => String(item.id)}
         />
 
@@ -132,7 +142,7 @@ export function Home() {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={popularMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item) } />}
+          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item)} />}
           keyExtractor={(item) => String(item.id)}
         />
 
@@ -141,7 +151,7 @@ export function Home() {
           horizontal={true}
           showsHorizontalScrollIndicator={false}
           data={topMovies}
-          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item) } />}
+          renderItem={({ item }) => <SliderItem data={item} navigatePage={() => navigateDetailsPage(item)} />}
           keyExtractor={(item) => String(item.id)}
         />
 
